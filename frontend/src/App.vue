@@ -1,13 +1,20 @@
 <template>
-  <div id="app">
+  <div>
+    <Header />
+    <div class="container-fluid">
+      <div class="jumbotron">Hello</div>
+    </div>
+    
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
+import Header from './components/Header.vue'
 
 @Options({
   components: {
+    Header
   }
 })
 export default class App extends Vue {}
