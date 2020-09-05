@@ -7,6 +7,7 @@ exports.ChatServer = void 0;
 const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = __importDefault(require("socket.io"));
+const crypto_1 = require("crypto");
 const constants_1 = require("./config/constants");
 class ChatServer {
     constructor() {
@@ -17,6 +18,11 @@ class ChatServer {
         this.io = socket_io_1.default(this.server);
         this.listen();
     }
+    makeHash(connection_id) {
+        let stamp = Date.now().toString() + this.connections[connection_id].name;
+        let hash = crypto_1.createHash("sha1").update(stamp).digest("hex");
+        return hash;
+    }
     listen() {
         this.server.listen(this.port, () => {
             console.log("Running server on port %s", this.port);
@@ -24,6 +30,7 @@ class ChatServer {
         this.io.on("connection", (socket) => {
             let con = this.connections.push({
                 id: socket.id,
+                name: "",
                 rooms: [socket.id],
             });
             con -= 1; // Con misteriously starts at 1
@@ -32,7 +39,13 @@ class ChatServer {
                 console.log(this.connections[con]);
             });
             socket.on("message", (data) => {
-                this.io.emit("new message", data);
+                let message = {
+                    content: data.content,
+                    sender: this.connections[con].name,
+                    sender_id: this.connections[con].id,
+                    id: this.makeHash(con),
+                };
+                this.io.emit("new message", message);
             });
             socket.on("disconnect", () => {
                 this.connections.splice(con, 1);

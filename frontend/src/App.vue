@@ -23,7 +23,12 @@
     </div>
     <div v-else class="container jumbotron mt-4">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Name" v-model="name" />
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Name"
+          v-model="name"
+        />
         <div class="input-group-append">
           <button
             class="btn btn-outline-secondary"
@@ -43,7 +48,7 @@ import { Options, Vue } from "vue-class-component";
 import Header from "./components/Header.vue";
 
 import io, { Socket } from "socket.io-client";
-import { Message } from "./interfaces";
+import { IncomingMessage, OutMessage } from "./interfaces";
 
 @Options({
   components: {
@@ -53,8 +58,7 @@ import { Message } from "./interfaces";
 export default class App extends Vue {
   private socket: SocketIOClient.Socket = io({ autoConnect: false });
   private message = "";
-  private messages: Message[] = [];
-  private id_count = 0;
+  private messages: IncomingMessage[] = [];
   private name = "";
   private connected = false;
 
@@ -65,18 +69,17 @@ export default class App extends Vue {
     this.socket = await io("http://localhost:4000");
     this.socket.emit("update name", this.name);
     if (this.socket) this.connected = true;
-    this.socket.on("new message", (data: string) => {
-      this.messages.push({
-        content: data,
-        id: this.id_count,
-      });
-      this.id_count++;
+    this.socket.on("new message", (data: IncomingMessage) => {
+      this.messages.push(data);
     });
   }
 
   public sendMessage() {
     if (this.message === "" || !this.connected) return;
-    this.socket.emit("message", this.message);
+    const _message: OutMessage = {
+      content: this.message,
+    };
+    this.socket.emit("message", _message);
     this.message = "";
   }
 }
