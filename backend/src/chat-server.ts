@@ -22,6 +22,7 @@ export class ChatServer {
       console.log("Running server on port %s", this.port);
     });
     this.io.on("connection", (socket) => {
+      console.log("new connection");
       socket.broadcast.emit("add-users", {
         users: [socket.id],
       });
