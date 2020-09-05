@@ -52,8 +52,11 @@ export class ChatServer {
         };
         this.io.emit("new message", message);
       });
-      socket.on("disconnect", () => {
-        this.connections.splice(con, 1);
+      socket.on("disconnect", (x) => {
+        // let _name = this.connections[con].name
+        // this.io.emit("someone disconnected", _name)
+        let _deleted = this.connections.splice(con, 1);
+        this.io.emit("someone disconnected", _deleted[0].name)
         console.log(`${con} disconnected`);
       });
     });

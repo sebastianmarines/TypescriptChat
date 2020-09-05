@@ -42,11 +42,11 @@
     </div>
     <div class="toast" style="position: absolute; top: 2em; right: 1em;" :class="new_connection.status ? 'show' : 'hide'">
       <div class="toast-header">
-        <strong class="mr-auto">New connection</strong>
+        <strong class="mr-auto">{{new_connection.connection ? 'New connection' : 'Someone leaved'}}</strong>
         <small>Now</small>
       </div>
       <div class="toast-body">
-        {{new_connection.name}} just connected
+        {{new_connection.name}} {{new_connection.connection ? 'connected' : 'disconnected'}}
       </div>
     </div>
   </div>
@@ -72,6 +72,7 @@ export default class App extends Vue {
   private connected = false;
   private new_connection = {
     status: false,
+    connection: false,
     name: ""
   };
 
@@ -79,7 +80,6 @@ export default class App extends Vue {
 
   public resetNewConnection() {
     this.new_connection.status = false
-    this.new_connection.name = ""
   }
 
   public async updateName() {
@@ -92,6 +92,13 @@ export default class App extends Vue {
     });
     this.socket.on("new connection", (name: string) => {
       this.new_connection.name = name
+      this.new_connection.connection = true
+      this.new_connection.status = true
+      setTimeout(()=>this.resetNewConnection(), 5000)
+    })
+    this.socket.on("someone disconnected", (name: string) => {
+      this.new_connection.name = name
+      this.new_connection.connection = false
       this.new_connection.status = true
       setTimeout(()=>this.resetNewConnection(), 5000)
     })
