@@ -21,7 +21,7 @@ export class ChatServer {
     this.server.listen(this.port, () => {
       console.log("Running server on port %s", this.port);
     });
-    this.io.on("connection", (socket) => {
+    this.io.on("connection", (socket: socketIo.Socket) => {
       console.log("new connection");
       socket.emit("add-users", "hello world")
     });

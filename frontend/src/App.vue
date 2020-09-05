@@ -2,7 +2,7 @@
   <div>
     <Header />
     <div class="container-fluid">
-      <div class="jumbotron">{{message}}</div>
+      <div class="jumbotron">{{ message }}</div>
     </div>
   </div>
 </template>
@@ -11,21 +11,21 @@
 import { Options, Vue } from "vue-class-component";
 import Header from "./components/Header.vue";
 
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 
 @Options({
   components: {
-    Header,
-  },
+    Header
+  }
 })
 export default class App extends Vue {
-  private socket = io("http://localhost:4000");
-  private message: any = "hello"
-  
-  created(){
-    this.socket.on("add-users", (data: any) => {
-      this.message = data
-    })
+  private socket: SocketIOClient.Socket = io("http://localhost:4000");
+  private message = "hello";
+
+  created() {
+    this.socket.on("add-users", (data: string) => {
+      this.message = data;
+    });
   }
 }
 </script>
