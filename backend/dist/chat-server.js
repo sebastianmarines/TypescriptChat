@@ -37,6 +37,7 @@ class ChatServer {
             socket.on("update name", (name) => {
                 this.connections[con].name = name;
                 console.log(this.connections[con]);
+                this.io.emit("new connection", name);
             });
             socket.on("message", (data) => {
                 let message = {
