@@ -40,10 +40,12 @@ class ChatServer {
                 this.io.emit("new connection", name);
             });
             socket.on("message", (data) => {
+                let _date = new Date;
                 let message = {
                     content: data.content,
                     sender: this.connections[con].name,
                     sender_id: this.connections[con].id,
+                    timestamp: _date.getHours().toString() + ":" + _date.getMinutes().toString(),
                     id: this.makeHash(con),
                 };
                 this.io.emit("new message", message);
