@@ -23,9 +23,7 @@ export class ChatServer {
     });
     this.io.on("connection", (socket) => {
       console.log("new connection");
-      socket.broadcast.emit("add-users", {
-        users: [socket.id],
-      });
+      socket.emit("add-users", "hello world")
     });
   }
 
