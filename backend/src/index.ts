@@ -1,9 +1,9 @@
-import express from 'express'
-import { PORT } from './config/constants'
+import { ChatServer } from "./chat-server";
 
-const app = express()
-app.use(express.json())
+let app = new ChatServer().getApp();
 
-app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`)
-})
+app.get("/", (request, response) => {
+  response.send("Hello Good ol friend");
+});
+
+export { app };
