@@ -2,7 +2,7 @@
   <div>
     <Header />
     <div class="container" v-if="connected">
-      <div class="jumbotron mt-4">Welcome to the chat {{ name }}</div>
+      <Jumbotron :name="name" />
       <div class="container">
         <div
           class="row d-flex flex-row my-2 border-bottom p-2"
@@ -70,6 +70,7 @@
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
 import Header from "./components/Header.vue";
+import Jumbotron from './components/Jumbotron.vue'
 
 import io, { Socket } from "socket.io-client";
 import { IncomingMessage, OutMessage } from "./interfaces";
@@ -77,6 +78,7 @@ import { IncomingMessage, OutMessage } from "./interfaces";
 @Options({
   components: {
     Header,
+    Jumbotron
   },
 })
 export default class App extends Vue {
