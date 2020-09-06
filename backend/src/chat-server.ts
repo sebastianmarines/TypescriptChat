@@ -45,18 +45,20 @@ export class ChatServer {
       });
       socket.on("message", (data: IncomingMessage) => {
         let _date = new Date
+        let minutes = _date.getMinutes().toString()
+        if (minutes.length<2) {
+          minutes = "0" + minutes
+        }
         let message: OutMessage = {
           content: data.content,
           sender: this.connections[con].name,
           sender_id: this.connections[con].id,
-          timestamp: _date.getHours().toString() + ":" + _date.getMinutes().toString(),
+          timestamp: `${_date.getHours()}:${minutes}`,
           id: this.makeHash(con),
         };
         this.io.emit("new message", message);
       });
-      socket.on("disconnect", (x) => {
-        // let _name = this.connections[con].name
-        // this.io.emit("someone disconnected", _name)
+      socket.on("disconnect", () => {
         let _deleted = this.connections.splice(con, 1);
         this.io.emit("someone disconnected", _deleted[0].name)
         console.log(`${con} disconnected`);
