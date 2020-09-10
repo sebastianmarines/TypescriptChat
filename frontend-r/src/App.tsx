@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Container } from "reactstrap";
 
 import Header from './components/Header'
-import Messages from './components/Messages/index'
+import Messages from './components/Messages'
 
 import IMessage from './interfaces/Message.interface'
 
