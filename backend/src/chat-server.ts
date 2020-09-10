@@ -4,7 +4,7 @@ import socketIo from "socket.io";
 import { createHash } from "crypto";
 
 import { PORT } from "./config/constants";
-import { Sender, OutMessage, IncomingMessage } from "./interfaces";
+import { Sender, OutMessage } from "./interfaces";
 
 export class ChatServer {
   private app: express.Application;
@@ -43,14 +43,14 @@ export class ChatServer {
         console.log(this.connections[con]);
         this.io.emit("new connection", name)
       });
-      socket.on("message", (data: IncomingMessage) => {
+      socket.on("message", (data: string) => {
         let _date = new Date
         let minutes = _date.getMinutes().toString()
         if (minutes.length<2) {
           minutes = "0" + minutes
         }
         let message: OutMessage = {
-          content: data.content,
+          content: data,
           sender: this.connections[con].name,
           sender_id: this.connections[con].id,
           timestamp: `${_date.getHours()}:${minutes}`,

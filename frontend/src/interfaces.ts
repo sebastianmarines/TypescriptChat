@@ -5,7 +5,3 @@ export interface IncomingMessage {
   timestamp: string;
   id: string;
 }
-
-export interface OutMessage {
-  content: string;
-}

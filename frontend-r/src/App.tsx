@@ -25,6 +25,12 @@ export default class App extends Component {
     })
   }
 
+  sendMessage = (message: string) => {
+    console.log(message)
+    this.state.socket.emit("message", message)
+    console.log(message)
+  }
+
   componentDidMount = () => {
     this.state.socket.on("new connection", (name: string) => {
       // this.new_connection.name = name;
@@ -48,7 +54,7 @@ export default class App extends Component {
           {this.state.name ? (
             <div style={style.div}>
               <Messages messages={this.state.messages} />
-              <MessageBox />
+              <MessageBox sendHandler={this.sendMessage}/>
             </div>
           ) : (
             <LogIn connectHandler={this.connect}/>

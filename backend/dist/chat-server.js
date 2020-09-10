@@ -46,7 +46,7 @@ class ChatServer {
                     minutes = "0" + minutes;
                 }
                 let message = {
-                    content: data.content,
+                    content: data,
                     sender: this.connections[con].name,
                     sender_id: this.connections[con].id,
                     timestamp: `${_date.getHours()}:${minutes}`,

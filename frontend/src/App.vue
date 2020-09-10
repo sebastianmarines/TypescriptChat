@@ -2,22 +2,9 @@
   <div>
     <Header />
     <div class="container" v-if="connected">
-      <Test />
+      <!-- <Test /> -->
       <Jumbotron :name="name" />
       <Messages :messages="messages" />
-      <!-- <div class="container">
-        <div
-          class="row d-flex flex-row my-2 border-bottom p-2"
-          v-for="message in messages"
-          :key="message.id"
-        >
-          <div>
-            <span class="font-weight-bold">{{ message.sender }}:</span>
-            {{ message.content }}
-          </div>
-          <span class="ml-auto"><p class="small text-muted">{{message.timestamp}}</p></span>
-        </div>
-      </div> -->
       <div class="input-group mb-3">
         <input type="text" class="form-control" v-model="message" />
         <div class="input-group-append">
@@ -77,7 +64,7 @@ import Messages from "./components/Messages.vue"
 import Test from './components/Test.vue'
 
 import io, { Socket } from "socket.io-client";
-import { IncomingMessage, OutMessage } from "./interfaces";
+import { IncomingMessage } from "./interfaces";
 
 @Options({
   components: {
@@ -129,10 +116,7 @@ export default class App extends Vue {
 
   public sendMessage() {
     if (this.message === "" || !this.connected) return;
-    const _message: OutMessage = {
-      content: this.message,
-    };
-    this.socket.emit("message", _message);
+    this.socket.emit("message", this.message);
     this.message = "";
   }
 }
