@@ -12,8 +12,7 @@ export class ChatServer {
   private server: Server;
   private io: socketIo.Server;
 
-  // private connections: Sender[] = [];
-  private connections: {[id: string]: Sender} = {};
+  private connections: { [id: string]: Sender } = {}; // Store all connected clients
 
   constructor() {
     this.app = express();
@@ -23,45 +22,56 @@ export class ChatServer {
   }
 
   private makeHash(connection_id: string): string {
+    /*
+      Create unique hash for message key
+    */
     let stamp = Date.now().toString() + this.connections[connection_id].name;
     let hash = createHash("sha1").update(stamp).digest("hex");
     return hash;
   }
 
   private listen(): void {
+    // Start server
     this.server.listen(this.port, () => {
       console.log("Running server on port %s", this.port);
     });
-    this.io.on("connection", (socket: socketIo.Socket) => {
-      let id = socket.id
 
+    // Connection handler
+    this.io.on("connection", (socket: socketIo.Socket) => {
+      let id = socket.id;
+
+      // Save current connection
       this.connections[id] = {
         name: "",
-        rooms: [id]
-      }
+        rooms: [id],
+      };
 
+      // Save the name that will appear in chat
       socket.on("update name", (name: string) => {
         this.connections[id].name = name;
-        this.io.emit("new connection", name)
+        this.io.emit("new connection", name);
       });
+
       socket.on("message", (data: string) => {
-        let date = new Date
-        let minutes = date.getMinutes().toString()
-        if (minutes.length<2) {
-          minutes = "0" + minutes
-        }
+        let date = new Date();
+        let minutes = date.getMinutes().toString();
+        // Prepend minutes with 0 if it is less than 10
+        let timestamp = `${date.getHours()}:${
+          minutes.length < 2 ? "0" : ""
+        }${minutes}`;
 
         let message: OutMessage = {
           content: data,
           sender: this.connections[id].name,
-          timestamp: `${date.getHours()}:${minutes}`,
+          timestamp: timestamp,
           id: this.makeHash(id),
         };
         this.io.emit("new message", message);
       });
+
       socket.on("disconnect", () => {
-        this.io.emit("someone disconnected", this.connections[id].name)
-        delete this.connections[id]
+        this.io.emit("someone disconnected", this.connections[id].name);
+        delete this.connections[id];
       });
     });
   }
