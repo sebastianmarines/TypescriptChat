@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container } from "reactstrap";
+import { Container, ToastHeader, Toast, ToastBody } from "reactstrap";
 import CSS from "csstype";
 import io, { Socket } from "socket.io-client";
 
@@ -14,37 +14,54 @@ export default class App extends Component {
   state: Readonly<State> = {
     messages: [],
     name: "",
-    socket: io("http://localhost:4000", { autoConnect: false })
+    socket: io("http://localhost:4000", { autoConnect: false }),
+    toast: {
+      isOpen: false,
+      status: false,
+      name: "",
+    },
+  };
+
+  showToast = (name: string, status: boolean) => {
+    this.setState({
+      toast: {
+        isOpen: true,
+        status: status,
+        name: name,
+      },
+    });
+    setTimeout(() => {
+      this.setState({ toast: { isOpen: false } });
+    }, 5000);
   };
 
   connect = (name: string) => {
     this.state.socket.connect();
     this.state.socket.emit("update name", name);
     this.setState({
-      name: name
-    })
-  }
+      name: name,
+    });
+  };
 
   sendMessage = (message: string) => {
-    console.log(message)
-    this.state.socket.emit("message", message)
-    console.log(message)
-  }
+    console.log(message);
+    this.state.socket.emit("message", message);
+    console.log(message);
+  };
 
   componentDidMount = () => {
     this.state.socket.on("new connection", (name: string) => {
-      // this.new_connection.name = name;
-      // this.new_connection.connection = true;
-      // this.new_connection.status = true;
-      // setTimeout(() => this.resetNewConnection(), 5000);
-      console.log(name)
+      this.showToast(name, true)
+    });
+    this.state.socket.on("someone disconnected", (name: string) => {
+      this.showToast(name, false)
     });
     this.state.socket.on("new message", (data: IMessage) => {
       this.setState((prevState: State) => ({
-        messages: [...prevState.messages, data]
-      }))
+        messages: [...prevState.messages, data],
+      }));
     });
-  }
+  };
 
   render() {
     return (
@@ -54,12 +71,25 @@ export default class App extends Component {
           {this.state.name ? (
             <div style={style.div}>
               <Messages messages={this.state.messages} />
-              <MessageBox sendHandler={this.sendMessage}/>
+              <MessageBox sendHandler={this.sendMessage} />
             </div>
           ) : (
-            <LogIn connectHandler={this.connect}/>
+            <LogIn connectHandler={this.connect} />
           )}
         </Container>
+        <div className="p-3 my-2 rounded" style={style.toast}>
+          <Toast isOpen={this.state.toast.isOpen}>
+            <ToastHeader>
+              {this.state.toast.status
+                ? "New connection"
+                : "Someone disconnected"}
+            </ToastHeader>
+            <ToastBody>
+              <span className="font-weight-bold">{this.state.toast.name}</span>
+              {this.state.toast.status ? " connected." : " disconnected."}
+            </ToastBody>
+          </Toast>
+        </div>
       </div>
     );
   }
@@ -69,6 +99,11 @@ interface State {
   messages: IMessage[];
   name: string;
   socket: SocketIOClient.Socket;
+  toast: {
+    isOpen: boolean;
+    status: boolean; // connect or disconnect
+    name: string;
+  };
 }
 
 let style: { [id: string]: CSS.Properties } = {
@@ -77,5 +112,11 @@ let style: { [id: string]: CSS.Properties } = {
     borderRadius: "5px",
     height: "85vh",
     position: "relative",
+  },
+  toast: {
+    position: "absolute",
+    top: "2em",
+    right: "1em",
+    zIndex: 1000000,
   },
 };
