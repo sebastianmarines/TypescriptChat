@@ -9,8 +9,7 @@ export class ChatServer {
   private port: string | number = PORT;
   private server: Server;
   private io: SocketServer;
-
-
+  
   constructor() {
     this.app = express();
     this.server = createServer(this.app);

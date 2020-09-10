@@ -5,10 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = __importDefault(require("socket.io"));
 const crypto_1 = require("crypto");
+const db_1 = __importDefault(require("./db"));
 class SocketServer extends socket_io_1.default {
     constructor(srv, opts) {
         super(srv, opts);
         this.connections = {}; // Store all connected clients
+        this.db = new db_1.default();
         this.start = () => {
             this.on("connect", (socket) => {
                 let id = socket.id;
@@ -28,6 +30,7 @@ class SocketServer extends socket_io_1.default {
         this.onUpdateName = (id, name) => {
             this.connections[id].name = name;
             this.emit("new connection", name);
+            this.db.storeClient(id, name);
         };
         this.onMessage = (id, data) => {
             let date = new Date();
@@ -45,6 +48,7 @@ class SocketServer extends socket_io_1.default {
         this.onDisconnect = (id) => {
             this.emit("someone disconnected", this.connections[id].name);
             delete this.connections[id];
+            this.db.removeClient(id);
         };
         /*
           Utility functions

@@ -3,9 +3,11 @@ import { Server } from "http";
 import { createHash } from "crypto";
 
 import { Sender, OutMessage } from "./interfaces";
+import DB from "./db";
 
 export default class SocketServer extends SocketIo {
   private connections: { [id: string]: Sender } = {}; // Store all connected clients
+  private db = new DB();
 
   constructor(srv: Server, opts?: SocketIo.ServerOptions) {
     super(srv, opts);
@@ -20,9 +22,9 @@ export default class SocketServer extends SocketIo {
       };
 
       // Listeners
-      socket.on("update name", (name) => this.onUpdateName(id, name))
+      socket.on("update name", (name) => this.onUpdateName(id, name));
       socket.on("message", (data) => this.onMessage(id, data));
-      socket.on("disconnect", () => this.onDisconnect(id))
+      socket.on("disconnect", () => this.onDisconnect(id));
     });
   };
 
@@ -32,6 +34,7 @@ export default class SocketServer extends SocketIo {
   onUpdateName = (id: string, name: string) => {
     this.connections[id].name = name;
     this.emit("new connection", name);
+    this.db.storeClient(id, name);
   };
 
   onMessage = (id: string, data: string) => {
@@ -54,6 +57,7 @@ export default class SocketServer extends SocketIo {
   onDisconnect = (id: string) => {
     this.emit("someone disconnected", this.connections[id].name);
     delete this.connections[id];
+    this.db.removeClient(id)
   };
 
   /*
