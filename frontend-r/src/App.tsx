@@ -6,7 +6,7 @@ import Header from './components/Header'
 export default class App extends Component {
   render() {
     return <div>
-      <Header />
+      <Header name="Sebastian"/>
       <Container>
         <h1>hi</h1>
       </Container>
