@@ -44,9 +44,7 @@ export default class App extends Component {
   };
 
   sendMessage = (message: string) => {
-    console.log(message);
     this.state.socket.emit("message", message);
-    console.log(message);
   };
 
   componentDidMount = () => {
