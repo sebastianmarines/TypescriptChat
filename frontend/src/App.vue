@@ -2,8 +2,10 @@
   <div>
     <Header />
     <div class="container" v-if="connected">
+      <Test />
       <Jumbotron :name="name" />
-      <div class="container">
+      <Messages :messages="messages" />
+      <!-- <div class="container">
         <div
           class="row d-flex flex-row my-2 border-bottom p-2"
           v-for="message in messages"
@@ -15,7 +17,7 @@
           </div>
           <span class="ml-auto"><p class="small text-muted">{{message.timestamp}}</p></span>
         </div>
-      </div>
+      </div> -->
       <div class="input-group mb-3">
         <input type="text" class="form-control" v-model="message" />
         <div class="input-group-append">
@@ -71,6 +73,8 @@
 import { Options, Vue } from "vue-class-component";
 import Header from "./components/Header.vue";
 import Jumbotron from './components/Jumbotron.vue'
+import Messages from "./components/Messages.vue"
+import Test from './components/Test.vue'
 
 import io, { Socket } from "socket.io-client";
 import { IncomingMessage, OutMessage } from "./interfaces";
@@ -78,7 +82,9 @@ import { IncomingMessage, OutMessage } from "./interfaces";
 @Options({
   components: {
     Header,
-    Jumbotron
+    Jumbotron,
+    Messages,
+    Test
   },
 })
 export default class App extends Vue {

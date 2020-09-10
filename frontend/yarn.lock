@@ -9181,6 +9181,16 @@ vue@^3.0.0-0:
     "@vue/runtime-dom" "3.0.0-rc.10"
     "@vue/shared" "3.0.0-rc.10"
 
+vuex-class@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/vuex-class/-/vuex-class-0.3.2.tgz#c7e96a076c1682137d4d23a8dcfdc63f220e17a8"
+  integrity sha512-m0w7/FMsNcwJgunJeM+wcNaHzK2KX1K1rw2WUQf7Q16ndXHo7pflRyOV/E8795JO/7fstyjH3EgqBI4h4n4qXQ==
+
+vuex-module-decorators@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/vuex-module-decorators/-/vuex-module-decorators-0.17.0.tgz#b170006f55f579f95415d7181fe5854830473d87"
+  integrity sha512-EFzrR3oyRMTHwpIgYzhW0BVKD71+FBs2U5Mn/ZQwlsaPyROZexDXTZTSYOYeuwg0kqQsK/YBkG4sQ8B4jmVMPg==
+
 vuex@^4.0.0-0:
   version "4.0.0-beta.4"
   resolved "https://registry.yarnpkg.com/vuex/-/vuex-4.0.0-beta.4.tgz#7b319ead2ef30432b7eaa4e37258ea3c5e44f698"

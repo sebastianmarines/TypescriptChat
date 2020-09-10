@@ -7,7 +7,7 @@ import { Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 
 export default class Jumbotron extends Vue {
-  @Prop(String)
-  name: string;
+  @Prop()
+  name!: string;
 }
 </script>
