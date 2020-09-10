@@ -12,7 +12,8 @@ const constants_1 = require("./config/constants");
 class ChatServer {
     constructor() {
         this.port = constants_1.PORT;
-        this.connections = [];
+        // private connections: Sender[] = [];
+        this.connections = {};
         this.app = express_1.default();
         this.server = http_1.createServer(this.app);
         this.io = socket_io_1.default(this.server);
@@ -28,36 +29,32 @@ class ChatServer {
             console.log("Running server on port %s", this.port);
         });
         this.io.on("connection", (socket) => {
-            let con = this.connections.push({
-                id: socket.id,
+            let id = socket.id;
+            this.connections[id] = {
                 name: "",
-                rooms: [socket.id],
-            });
-            con -= 1; // Con misteriously starts at 1
+                rooms: [id]
+            };
             socket.on("update name", (name) => {
-                this.connections[con].name = name;
-                console.log(this.connections[con]);
+                this.connections[id].name = name;
                 this.io.emit("new connection", name);
             });
             socket.on("message", (data) => {
-                let _date = new Date;
-                let minutes = _date.getMinutes().toString();
+                let date = new Date;
+                let minutes = date.getMinutes().toString();
                 if (minutes.length < 2) {
                     minutes = "0" + minutes;
                 }
                 let message = {
                     content: data,
-                    sender: this.connections[con].name,
-                    sender_id: this.connections[con].id,
-                    timestamp: `${_date.getHours()}:${minutes}`,
-                    id: this.makeHash(con),
+                    sender: this.connections[id].name,
+                    timestamp: `${date.getHours()}:${minutes}`,
+                    id: this.makeHash(id),
                 };
                 this.io.emit("new message", message);
             });
             socket.on("disconnect", () => {
-                let _deleted = this.connections.splice(con, 1);
-                this.io.emit("someone disconnected", _deleted[0].name);
-                console.log(`${con} disconnected`);
+                this.io.emit("someone disconnected", this.connections[id].name);
+                delete this.connections[id];
             });
         });
     }
