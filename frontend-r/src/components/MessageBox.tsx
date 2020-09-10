@@ -9,7 +9,7 @@ export default class MessageBox extends Component {
       <InputGroup style={style} className="p-3">
         <Input />
         <InputGroupAddon addonType="append">
-          <Button color="secondary">To the Right!</Button>
+          <Button color="info">Send</Button>
         </InputGroupAddon>
       </InputGroup>
     );
@@ -19,5 +19,6 @@ export default class MessageBox extends Component {
 let style: CSS.Properties = {
   position: "absolute",
   left: 0,
-  bottom: 0
+  bottom: 0,
+  borderTop: "3px solid #6c6c6d",
 };
