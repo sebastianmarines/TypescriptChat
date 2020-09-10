@@ -1,0 +1,6 @@
+.message-container {
+    border: 5px solid #343a40;
+    border-radius: 5px;
+    height: 70vh !important;
+    overflow-y: scroll;
+}
