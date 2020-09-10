@@ -7,7 +7,7 @@ export default class Header extends Component<HeaderProps, {}> {
     let { name } = this.props;
     return (
       <Navbar color="dark" dark className="p-3">
-        <NavbarBrand a>Chat</NavbarBrand>
+        <NavbarBrand>Chat</NavbarBrand>
         <NavbarText className="text-white">{name ? ("Welcome " + name) : ""}</NavbarText>
       </Navbar>
     );
