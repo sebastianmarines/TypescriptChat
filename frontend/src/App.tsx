@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, ToastHeader, Toast, ToastBody } from "reactstrap";
+import { Container, ToastHeader, Toast, ToastBody, Badge } from "reactstrap";
 import CSS from "csstype";
 import io, { Socket } from "socket.io-client";
 
@@ -20,6 +20,7 @@ export default class App extends Component {
       status: false,
       name: "",
     },
+    room: "",
   };
 
   showToast = (name: string, status: boolean) => {
@@ -35,11 +36,12 @@ export default class App extends Component {
     }, 5000);
   };
 
-  connect = (name: string) => {
+  connect = (name: string, room: string) => {
     this.state.socket.connect();
-    this.state.socket.emit("update name", name);
+    this.state.socket.emit("login", name, room);
     this.setState({
       name: name,
+      room: room,
     });
   };
 
@@ -49,10 +51,10 @@ export default class App extends Component {
 
   componentDidMount = () => {
     this.state.socket.on("new connection", (name: string) => {
-      this.showToast(name, true)
+      this.showToast(name, true);
     });
     this.state.socket.on("someone disconnected", (name: string) => {
-      this.showToast(name, false)
+      this.showToast(name, false);
     });
     this.state.socket.on("new message", (data: IMessage) => {
       this.setState((prevState: State) => ({
@@ -67,10 +69,20 @@ export default class App extends Component {
         <Header name={this.state.name} />
         <Container className="mt-3">
           {this.state.name ? (
-            <div style={style.div}>
-              <Messages messages={this.state.messages} />
-              <MessageBox sendHandler={this.sendMessage} />
-            </div>
+            <Container>
+              <Container className="d-flex justify-content-end py-1">
+                <Badge color="primary">
+                  <span>
+                    Connected to room{" "}
+                    <span className="font-weight-bold">"{this.state.room}"</span>
+                  </span>
+                </Badge>
+              </Container>
+              <div style={style.div}>
+                <Messages messages={this.state.messages} />
+                <MessageBox sendHandler={this.sendMessage} />
+              </div>
+            </Container>
           ) : (
             <LogIn connectHandler={this.connect} />
           )}
@@ -102,6 +114,7 @@ interface State {
     status: boolean; // connect or disconnect
     name: string;
   };
+  room: string;
 }
 
 let style: { [id: string]: CSS.Properties } = {
