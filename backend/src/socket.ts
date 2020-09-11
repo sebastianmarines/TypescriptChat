@@ -3,11 +3,11 @@ import { Server } from "http";
 import { createHash } from "crypto";
 
 import { Sender, OutMessage } from "./interfaces";
-//import DB from "./db";
+import DB from "./db";
 
 export default class SocketServer extends SocketIo {
   private connections: { [id: string]: Sender } = {}; // Store all connected clients
-  //private db = new DB();
+  private db = new DB();
 
   constructor(srv: Server, opts?: SocketIo.ServerOptions) {
     super(srv, opts);
@@ -22,9 +22,7 @@ export default class SocketServer extends SocketIo {
       };
 
       // Listeners
-      socket.on("login", (name, room) =>
-        this.onUpdateName(socket, id, name, room)
-      );
+      socket.on("login", (name, room) => this.onLogin(socket, id, name, room));
       socket.on("message", (data) => this.onMessage(id, data));
       socket.on("disconnect", () => this.onDisconnect(id));
     });
@@ -33,7 +31,7 @@ export default class SocketServer extends SocketIo {
   /*
     Handlers
   */
-  onUpdateName = (
+  onLogin = (
     socket: SocketIo.Socket,
     id: string,
     name: string,
@@ -43,7 +41,8 @@ export default class SocketServer extends SocketIo {
     this.connections[id].rooms = [...this.connections[id].rooms, room];
     socket.join(room);
     this.to(room).emit("new connection", name);
-    //this.db.storeClient(id, name);
+    this.db.storeClient(id, this.connections[id]);
+    this.sendPastMessages(socket, room);
   };
 
   onMessage = (id: string, data: string) => {
@@ -61,12 +60,13 @@ export default class SocketServer extends SocketIo {
       id: this.makeHash(id),
     };
     this.sendMessage(id, message);
+    this.db.addMessage(this.connections[id].rooms[0], message);
   };
 
   onDisconnect = (id: string) => {
     this.emit("someone disconnected", this.connections[id].name);
     delete this.connections[id];
-    //this.db.removeClient(id);
+    this.db.removeClient(id);
   };
 
   /*
@@ -74,6 +74,13 @@ export default class SocketServer extends SocketIo {
   */
   sendMessage = (id: string, message: OutMessage) => {
     this.to(this.connections[id].rooms[0]).emit("new message", message);
+  };
+
+  sendPastMessages = async (socket: SocketIo.Socket, room: string) => {
+    await this.db.getMessages(room, (messages) => {
+      socket.emit("past messages", messages);
+    });
+    
   };
 
   private makeHash(connection_id: string): string {

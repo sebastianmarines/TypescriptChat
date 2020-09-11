@@ -61,6 +61,11 @@ export default class App extends Component {
         messages: [data, ...prevState.messages],
       }));
     });
+    this.state.socket.on("past messages", (data: IMessage[]) => {
+      this.setState({
+        messages: [...data]
+      })
+    })
   };
 
   render() {
