@@ -27,5 +27,7 @@ let style: { [id: string]: CSS.Properties } = {
   container: {
     overflowY: "scroll",
     height: "90%",
+    display: "flex",
+    flexDirection: "column-reverse"
   }
 };
