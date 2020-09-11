@@ -5,21 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const socket_io_1 = __importDefault(require("socket.io"));
 const crypto_1 = require("crypto");
-const db_1 = __importDefault(require("./db"));
+//import DB from "./db";
 class SocketServer extends socket_io_1.default {
+    //private db = new DB();
     constructor(srv, opts) {
         super(srv, opts);
         this.connections = {}; // Store all connected clients
-        this.db = new db_1.default();
         this.start = () => {
             this.on("connect", (socket) => {
                 let id = socket.id;
                 this.connections[id] = {
                     name: "",
-                    rooms: [id],
+                    rooms: [],
                 };
                 // Listeners
-                socket.on("update name", (name) => this.onUpdateName(id, name));
+                socket.on("login", (name, room) => this.onUpdateName(socket, id, name, room));
                 socket.on("message", (data) => this.onMessage(id, data));
                 socket.on("disconnect", () => this.onDisconnect(id));
             });
@@ -27,10 +27,12 @@ class SocketServer extends socket_io_1.default {
         /*
           Handlers
         */
-        this.onUpdateName = (id, name) => {
+        this.onUpdateName = (socket, id, name, room) => {
             this.connections[id].name = name;
-            this.emit("new connection", name);
-            this.db.storeClient(id, name);
+            this.connections[id].rooms = [...this.connections[id].rooms, room];
+            socket.join(room);
+            this.to(room).emit("new connection", name);
+            //this.db.storeClient(id, name);
         };
         this.onMessage = (id, data) => {
             let date = new Date();
@@ -43,18 +45,18 @@ class SocketServer extends socket_io_1.default {
                 timestamp: timestamp,
                 id: this.makeHash(id),
             };
-            this.sendMessage(message);
+            this.sendMessage(id, message);
         };
         this.onDisconnect = (id) => {
             this.emit("someone disconnected", this.connections[id].name);
             delete this.connections[id];
-            this.db.removeClient(id);
+            //this.db.removeClient(id);
         };
         /*
           Utility functions
         */
-        this.sendMessage = (message) => {
-            this.emit("new message", message);
+        this.sendMessage = (id, message) => {
+            this.to(this.connections[id].rooms[0]).emit("new message", message);
         };
     }
     makeHash(connection_id) {

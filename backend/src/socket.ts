@@ -3,11 +3,11 @@ import { Server } from "http";
 import { createHash } from "crypto";
 
 import { Sender, OutMessage } from "./interfaces";
-import DB from "./db";
+//import DB from "./db";
 
 export default class SocketServer extends SocketIo {
   private connections: { [id: string]: Sender } = {}; // Store all connected clients
-  private db = new DB();
+  //private db = new DB();
 
   constructor(srv: Server, opts?: SocketIo.ServerOptions) {
     super(srv, opts);
@@ -18,11 +18,13 @@ export default class SocketServer extends SocketIo {
       let id = socket.id;
       this.connections[id] = {
         name: "",
-        rooms: [id],
+        rooms: [],
       };
 
       // Listeners
-      socket.on("update name", (name) => this.onUpdateName(id, name));
+      socket.on("login", (name, room) =>
+        this.onUpdateName(socket, id, name, room)
+      );
       socket.on("message", (data) => this.onMessage(id, data));
       socket.on("disconnect", () => this.onDisconnect(id));
     });
@@ -31,10 +33,17 @@ export default class SocketServer extends SocketIo {
   /*
     Handlers
   */
-  onUpdateName = (id: string, name: string) => {
+  onUpdateName = (
+    socket: SocketIo.Socket,
+    id: string,
+    name: string,
+    room: string
+  ) => {
     this.connections[id].name = name;
-    this.emit("new connection", name);
-    this.db.storeClient(id, name);
+    this.connections[id].rooms = [...this.connections[id].rooms, room];
+    socket.join(room);
+    this.to(room).emit("new connection", name);
+    //this.db.storeClient(id, name);
   };
 
   onMessage = (id: string, data: string) => {
@@ -51,20 +60,20 @@ export default class SocketServer extends SocketIo {
       timestamp: timestamp,
       id: this.makeHash(id),
     };
-    this.sendMessage(message);
+    this.sendMessage(id, message);
   };
 
   onDisconnect = (id: string) => {
     this.emit("someone disconnected", this.connections[id].name);
     delete this.connections[id];
-    this.db.removeClient(id)
+    //this.db.removeClient(id);
   };
 
   /*
     Utility functions
   */
-  sendMessage = (message: OutMessage) => {
-    this.emit("new message", message);
+  sendMessage = (id: string, message: OutMessage) => {
+    this.to(this.connections[id].rooms[0]).emit("new message", message);
   };
 
   private makeHash(connection_id: string): string {
